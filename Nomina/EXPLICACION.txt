@@ -1,0 +1,84 @@
+PRÁCTICA 11 - NÓMINA MENSUAL (Programación II)
+Explicación de los conceptos aplicados en el código
+
+ESTRUCTURA DEL PROYECTO
+  src/modelo/Empleado.java          clase abstracta (DPI y nombre)
+  src/modelo/EmpleadoFijo.java      hija: sueldo mensual + bonificación
+  src/modelo/EmpleadoPorHora.java   hija: pago por hora x horas trabajadas
+  src/aplicacion/Main.java          menús, captura de datos y reporte
+
+1. ORGANIZACIÓN Y CREACIÓN DE OBJETOS
+  - Proyecto, package e import: las clases de empleados están en el paquete
+    "modelo" y Main en "aplicacion" (declarados con package). Main usa import
+    para ArrayList, Scanner, Locale y las clases de modelo.
+  - Clase, objeto, instancia e instanciación: cada clase está en su archivo
+    .java. En Main, capturarEmpleadoFijo() y capturarEmpleadoPorHora() crean una
+    instancia independiente con new por cada empleado y luego se agrega al
+    ArrayList.
+  - Constructores, parámetros, argumentos y this: en el constructor
+    EmpleadoFijo(String dpi, String nombre, double sueldoMensual,
+    double bonificacion), dpi, nombre, sueldoMensual y bonificacion son los
+    PARÁMETROS. En Main, la línea
+    new EmpleadoFijo(dpi, nombre, sueldoMensual, bonificacion) pasa los valores
+    capturados en consola: esos son los ARGUMENTOS. Dentro del constructor,
+    this.sueldoMensual = sueldoMensual; distingue el atributo (izquierda) del
+    parámetro (derecha). Los constructores no declaran tipo de retorno.
+
+2. ENCAPSULACIÓN, ABSTRACCIÓN Y HERENCIA
+  - Atributos y modificadores de acceso: todos los atributos son private (dpi,
+    nombre, sueldoMensual, bonificacion, pagoPorHora, horasTrabajadas y, en
+    Main, meses, empleados, teclado y numeroMes). Se consultan con getters y
+    los setters repiten las validaciones. Los parámetros y variables locales
+    no llevan private.
+  - Clase y método abstractos: Empleado es abstract y declara
+    public abstract double calcularPago(). No se puede hacer new Empleado(...).
+  - Herencia y sobrescritura: EmpleadoFijo y EmpleadoPorHora usan
+    "extends Empleado" y @Override en calcularPago() y obtenerTipo(). Inicializan
+    DPI y nombre con super(dpi, nombre); no repiten esos atributos.
+  - Polimorfismo: un solo ArrayList<Empleado> guarda ambos tipos. En
+    imprimirNomina(), el for-each usa referencias de tipo Empleado y llama a
+    empleado.calcularPago(); cada objeto ejecuta su propia fórmula. El reporte
+    no usa if, switch ni instanceof para decidir la fórmula. El switch/if
+    solo se usa en los menús para elegir qué objeto crear.
+
+3. ARREGLO SIMPLE Y ARRAYLIST
+  - String[] meses (Main): los 12 nombres predefinidos; cantidad fija.
+  - meses[numeroMes - 1]: se consulta cada vez que se muestra el mes (menú,
+    títulos y reporte). Ejemplo: si numeroMes = 3, meses[2] = "Marzo". El mes se
+    valida (1 a 12) en leerEnteroEnRango(...) antes de guardarlo, así que
+    ningún dato inválido se usa como índice.
+  - ArrayList<Empleado> empleados: la cantidad crece al ingresar empleados.
+    * add():  empleados.add(nuevo) en ingresarNomina(), solo cuando los datos
+              fueron válidos.
+    * size(): empleados.size() para el contador "Trabajadores actuales" y para
+              el "Total de trabajadores" del reporte.
+    * Recorrido: for (Empleado empleado : empleados) en imprimirNomina().
+
+4. MÉTODOS, ÁMBITO Y ALCANCE
+  - main es el punto de entrada y delega en métodos: mostrarMenuPrincipal(),
+    ingresarNomina(), capturarEmpleadoFijo(), capturarEmpleadoPorHora(),
+    imprimirNomina(), leerDpi(), leerNombre(), leerMonto(), etc.
+  - Métodos con parámetros: mostrarTitulo(String subtitulo),
+    leerEnteroEnRango(String mensaje, int minimo, int maximo),
+    leerMonto(String mensaje), formatearMonto(double monto).
+  - Métodos que devuelven resultado: leerEnteroEnRango (int), leerDpi y
+    leerNombre (String), leerMonto (double), formatearMonto (String),
+    capturarEmpleadoFijo/PorHora (Empleado).
+  - Atributo, parámetro y variable local (ejemplo):
+    * Atributo: numeroMes (Main). Pertenece a la clase; se usa desde todos los
+      métodos de Main. En los modelos, por ejemplo, sueldoMensual se usa desde
+      todos los métodos de EmpleadoFijo.
+    * Parámetro: subtitulo en mostrarTitulo(String subtitulo). Solo se puede
+      usar dentro de ese método; recibe su valor del argumento con que se llama.
+    * Variable local: nuevo (Empleado nuevo) dentro del while de
+      ingresarNomina(), y total en imprimirNomina(). Solo existen en el bloque
+      donde se declaran.
+
+5. CASO DE COMPROBACIÓN (sección 11 del enunciado)
+  - Ingresar mes 3 -> se muestra "MARZO" (meses[2]). 1 -> Enero, 12 -> Diciembre.
+  - Ana López (DPI 1234567890101), fija, sueldo 4000, bonificación 300 -> Q 4300.00.
+  - Luis Pérez (DPI 9876543210101), por hora, Q 25 x 120 horas -> Q 3000.00.
+  - Reporte: Total de trabajadores: 2, Total de nómina: Q 7300.00.
+  - También se comprobó: reporte sin empleados (0 y Q 0.00), regreso desde el
+    registro al menú principal, y recuperación ante opciones inválidas, datos
+    vacíos, texto en campos numéricos y valores negativos.
